@@ -399,6 +399,99 @@ uint16_t led_blink_duration = 50; // milliseconds
 uint16_t heartbeat_interval = 5000; // milliseconds
 bool heartbeat_enabled = true;
 
+bool seed_req = false;
+bool sent_raw= false;
+bool BL_send_next = false;
+uint16_t BL_idx = 0;
+
+/*
+Stock bootloder
+uint8_t bootloader[521] = {0x4c, 0x01, 0x00, 0x03, 0x03, 0x37, 0x80, 0x00, 0xac, 0xfa, 0x00, 0x01, 0x98, 0xf8, 0x10,
+0xb7, 0x02, 0xf8, 0x20, 0xb7, 0x58, 0xb6, 0xee, 0xf5, 0x11, 0xfa, 0x00, 0x01, 0x82, 0xfa,
+0x00, 0x01, 0x98, 0x17, 0xfa, 0x01, 0xb0, 0x17, 0xf5, 0x01, 0xb0, 0xfa, 0x00, 0x01, 0x82,
+0xfa, 0x00, 0x01, 0x98, 0x17, 0xfa, 0x01, 0xb1, 0x17, 0xf5, 0x01, 0xb1, 0xfa, 0x00, 0x01,
+0x82, 0xf5, 0x00, 0x37, 0x9c, 0x37, 0xbc, 0x02, 0x00, 0xfa, 0x00, 0x01, 0x98, 0xca, 0x00,
+0xc5, 0x00, 0xfa, 0x00, 0x01, 0x82, 0x3c, 0x01, 0x27, 0x31, 0x01, 0xb0, 0xb6, 0xe8, 0x37,
+0xb5, 0x0f, 0xa0, 0xfa, 0x00, 0x01, 0xa8, 0xf5, 0x04, 0x37, 0x9c, 0x37, 0xbc, 0x80, 0x00,
+0xf5, 0x14, 0xfa, 0x00, 0x01, 0x82, 0xb0, 0x94, 0xf5, 0x21, 0xfa, 0x00, 0x01, 0x82, 0xfa,
+0x00, 0x02, 0x00, 0xb0, 0x88, 0xfa, 0x00, 0x01, 0x98, 0xfa, 0x00, 0x01, 0x82, 0x27, 0xf7,
+0x17, 0x65, 0x7c, 0x0c, 0x76, 0x01, 0xb7, 0xf4, 0x17, 0xea, 0x7c, 0x0f, 0x37, 0xb5, 0x01,
+0x90, 0xfa, 0x00, 0x01, 0xa8, 0x27, 0xf7, 0x17, 0x65, 0x7c, 0x0d, 0x76, 0x42, 0x78, 0x40,
+0xb6, 0xf2, 0x17, 0xe5, 0x7c, 0x0f, 0x27, 0xf7, 0x37, 0xb0, 0x00, 0x01, 0xb6, 0xf6, 0x27,
+0xf7, 0x27, 0x4c, 0x37, 0x3b, 0x00, 0xe0, 0xf5, 0x0f, 0x37, 0x9e, 0x37, 0xbe, 0x80, 0x00,
+0xf5, 0x00, 0x37, 0x9f, 0x37, 0xbf, 0x07, 0xf6, 0x37, 0x15, 0x27, 0xfa, 0x37, 0x9d, 0xf5,
+0x04, 0x37, 0x9c, 0x37, 0xbc, 0x80, 0x00, 0x37, 0xb5, 0x01, 0x48, 0x37, 0xea, 0x7a, 0x00,
+0x28, 0x80, 0x7a, 0x21, 0x37, 0xb5, 0x00, 0xcf, 0x37, 0xea, 0x7a, 0x44, 0x37, 0xb5, 0x04,
+0x05, 0x37, 0xea, 0x7a, 0x48, 0x37, 0xea, 0x7a, 0x4c, 0x37, 0xb5, 0x68, 0xf0, 0x37, 0xea,
+0x7a, 0x4a, 0x37, 0xb5, 0x70, 0xf0, 0x37, 0xea, 0x7a, 0x4e, 0x37, 0xb5, 0xff, 0x88, 0x37,
+0xea, 0x7a, 0x54, 0x37, 0xb5, 0x78, 0x30, 0x37, 0xea, 0x7a, 0x56, 0x37, 0xb5, 0xf8, 0x81,
+0x37, 0xea, 0x08, 0x14, 0x37, 0xe5, 0x08, 0x12, 0x37, 0xb7, 0x00, 0x01, 0x37, 0xea, 0x08,
+0x12, 0x37, 0xb5, 0x00, 0x00, 0x37, 0xea, 0x08, 0x18, 0x27, 0x29, 0x08, 0x06, 0xff, 0xff,
+0x27, 0x29, 0x08, 0x08, 0x03, 0xff, 0x27, 0xf5, 0x37, 0x35, 0x08, 0x24, 0x27, 0xaa, 0x7c,
+0x04, 0x37, 0x38, 0x08, 0x38, 0xb3, 0xf2, 0x17, 0x25, 0x79, 0x20, 0x27, 0x28, 0x08, 0x60,
+0x20, 0x00, 0xfa, 0x00, 0x02, 0x64, 0xf5, 0x22, 0xfa, 0x00, 0x01, 0x82, 0x7a, 0x00, 0x01,
+0x04, 0x37, 0xb5, 0x40, 0x88, 0x37, 0xea, 0x7c, 0x00, 0x75, 0x06, 0x17, 0x6a, 0x7c, 0x04,
+0x75, 0xfe, 0x17, 0x6a, 0x7c, 0x05, 0x75, 0x33, 0x17, 0x6a, 0x7c, 0x16, 0x75, 0xf8, 0x17,
+0x6a, 0x7c, 0x15, 0x75, 0xfe, 0x17, 0x6a, 0x7c, 0x17, 0x37, 0xb5, 0x81, 0x08, 0x37, 0xea,
+0x7c, 0x18, 0x37, 0xb5, 0x10, 0x00, 0x37, 0xea, 0x7c, 0x1a, 0x37, 0xb5, 0x00, 0x00, 0x37,
+0xea, 0x7c, 0x1c, 0x75, 0x00, 0x17, 0x6a, 0x7c, 0x1e, 0x37, 0x35, 0x42, 0x42, 0x37, 0x6a,
+0x7d, 0x41, 0x37, 0x35, 0x02, 0x02, 0x37, 0x6a, 0x7d, 0x43, 0x37, 0x35, 0xc2, 0x02, 0x37,
+0x6a, 0x7d, 0x45, 0x37, 0x35, 0xc2, 0x42, 0x37, 0x6a, 0x7d, 0x48, 0x37, 0xb5, 0x01, 0x00,
+0x37, 0xea, 0x7d, 0x24, 0x37, 0xb5, 0x02, 0x02, 0x37, 0xea, 0x7c, 0x1c, 0xfa, 0x00, 0x02,
+0xde, 0x27, 0xf7, 0x28, 0x80, 0x7c, 0x1f, 0x29, 0x80, 0x7c, 0x1a, 0x37, 0x05, 0x37, 0x01,
+0xb7, 0x0a, 0x2a, 0x80, 0x7c, 0x1f, 0xff, 0xf6, 0x28, 0x80, 0x7c, 0x1f, 0x37, 0x06, 0xb0,
+0x04, 0x37, 0x3b, 0x01, 0x00, 0x37, 0xfc, 0xf5, 0xa5, 0x27, 0xf7}; */
+uint8_t bootloader[551] = {0x4c, 0x01, 0x00, 0x03, 0x22, 0x37, 0x80, 0x00, 0xb2, 0xfa, 0x00, 0x01, 0x9e, 0xf8, 0x10, 0xb7,
+0x08, 0xf8, 0x20, 0xb7, 0x5e, 0xf8, 0x30, 0xfa, 0x00, 0x03, 0x0a, 0xb6, 0xe8, 0xf5, 0x11, 0xfa,
+0x00, 0x01, 0x88, 0xfa, 0x00, 0x01, 0x9e, 0x17, 0xfa, 0x01, 0xb6, 0x17, 0xf5, 0x01, 0xb6, 0xfa,
+0x00, 0x01, 0x88, 0xfa, 0x00, 0x01, 0x9e, 0x17, 0xfa, 0x01, 0xb7, 0x17, 0xf5, 0x01, 0xb7, 0xfa,
+0x00, 0x01, 0x88, 0xf5, 0x00, 0x37, 0x9c, 0x37, 0xbc, 0x02, 0x06, 0xfa, 0x00, 0x01, 0x9e, 0xca,
+0x00, 0xc5, 0x00, 0xfa, 0x00, 0x01, 0x88, 0x3c, 0x01, 0x27, 0x31, 0x01, 0xb6, 0xb6, 0xe8, 0x37,
+0xb5, 0x0f, 0xa0, 0xfa, 0x00, 0x01, 0xae, 0xf5, 0x04, 0x37, 0x9c, 0x37, 0xbc, 0x80, 0x00, 0xf5,
+0x14, 0xfa, 0x00, 0x01, 0x88, 0xb0, 0x8e, 0xf5, 0x21, 0xfa, 0x00, 0x01, 0x88, 0xfa, 0x00, 0x02,
+0x06, 0xb0, 0x82, 0xfa, 0x00, 0x01, 0x9e, 0xfa, 0x00, 0x01, 0x88, 0x27, 0xf7, 0x17, 0x65, 0x7c,
+0x0c, 0x76, 0x01, 0xb7, 0xf4, 0x17, 0xea, 0x7c, 0x0f, 0x37, 0xb5, 0x03, 0x20, 0xfa, 0x00, 0x01,
+0xae, 0x27, 0xf7, 0x17, 0x65, 0x7c, 0x0d, 0x76, 0x42, 0x78, 0x40, 0xb6, 0xf2, 0x17, 0xe5, 0x7c,
+0x0f, 0x27, 0xf7, 0x37, 0xb0, 0x00, 0x01, 0xb6, 0xf6, 0x27, 0xf7, 0x27, 0x4c, 0x37, 0x3b, 0x00,
+0xe0, 0xf5, 0x0f, 0x37, 0x9e, 0x37, 0xbe, 0x80, 0x00, 0xf5, 0x00, 0x37, 0x9f, 0x37, 0xbf, 0x07,
+0xf6, 0x37, 0x15, 0x27, 0xfa, 0x37, 0x9d, 0xf5, 0x04, 0x37, 0x9c, 0x37, 0xbc, 0x80, 0x00, 0x37,
+0xb5, 0x01, 0x48, 0x37, 0xea, 0x7a, 0x00, 0x28, 0x80, 0x7a, 0x21, 0x37, 0xb5, 0x00, 0xcf, 0x37,
+0xea, 0x7a, 0x44, 0x37, 0xb5, 0x04, 0x05, 0x37, 0xea, 0x7a, 0x48, 0x37, 0xea, 0x7a, 0x4c, 0x37,
+0xb5, 0x68, 0xf0, 0x37, 0xea, 0x7a, 0x4a, 0x37, 0xb5, 0x70, 0xf0, 0x37, 0xea, 0x7a, 0x4e, 0x37,
+0xb5, 0xff, 0x88, 0x37, 0xea, 0x7a, 0x54, 0x37, 0xb5, 0x78, 0x30, 0x37, 0xea, 0x7a, 0x56, 0x37,
+0xb5, 0xf8, 0x81, 0x37, 0xea, 0x08, 0x14, 0x37, 0xe5, 0x08, 0x12, 0x37, 0xb7, 0x00, 0x01, 0x37,
+0xea, 0x08, 0x12, 0x37, 0xb5, 0x00, 0x00, 0x37, 0xea, 0x08, 0x18, 0x27, 0x29, 0x08, 0x06, 0xff,
+0xff, 0x27, 0x29, 0x08, 0x08, 0x03, 0xff, 0x27, 0xf5, 0x37, 0x35, 0x08, 0x24, 0x27, 0xaa, 0x7c,
+0x04, 0x37, 0x38, 0x08, 0x38, 0xb3, 0xf2, 0x17, 0x25, 0x79, 0x20, 0x27, 0x28, 0x08, 0x60, 0x20,
+0x00, 0xfa, 0x00, 0x02, 0x6a, 0xf5, 0x22, 0xfa, 0x00, 0x01, 0x88, 0x7a, 0x00, 0x01, 0x04, 0x37,
+0xb5, 0x40, 0x88, 0x37, 0xea, 0x7c, 0x00, 0x75, 0x06, 0x17, 0x6a, 0x7c, 0x04, 0x75, 0xfe, 0x17,
+0x6a, 0x7c, 0x05, 0x75, 0x33, 0x17, 0x6a, 0x7c, 0x16, 0x75, 0xf8, 0x17, 0x6a, 0x7c, 0x15, 0x75,
+0xfe, 0x17, 0x6a, 0x7c, 0x17, 0x37, 0xb5, 0x81, 0x08, 0x37, 0xea, 0x7c, 0x18, 0x37, 0xb5, 0x10,
+0x00, 0x37, 0xea, 0x7c, 0x1a, 0x37, 0xb5, 0x00, 0x00, 0x37, 0xea, 0x7c, 0x1c, 0x75, 0x00, 0x17,
+0x6a, 0x7c, 0x1e, 0x37, 0x35, 0x42, 0x42, 0x37, 0x6a, 0x7d, 0x41, 0x37, 0x35, 0x02, 0x02, 0x37,
+0x6a, 0x7d, 0x43, 0x37, 0x35, 0xc2, 0x02, 0x37, 0x6a, 0x7d, 0x45, 0x37, 0x35, 0xc2, 0x42, 0x37,
+0x6a, 0x7d, 0x48, 0x37, 0xb5, 0x01, 0x00, 0x37, 0xea, 0x7d, 0x24, 0x37, 0xb5, 0x02, 0x02, 0x37,
+0xea, 0x7c, 0x1c, 0xfa, 0x00, 0x02, 0xe4, 0x27, 0xf7, 0x28, 0x80, 0x7c, 0x1f, 0x29, 0x80, 0x7c,
+0x1a, 0x37, 0x05, 0x37, 0x01, 0xb7, 0x0a, 0x2a, 0x80, 0x7c, 0x1f, 0xff, 0xf6, 0x28, 0x80, 0x7c,
+0x1f, 0x37, 0x06, 0xb0, 0x04, 0x37, 0x3b, 0x01, 0x00, 0x37, 0xfc, 0xf5, 0xa5, 0x27, 0xf7, 0xf5,
+0x04, 0x37, 0x9c, 0x37, 0xbc, 0x00, 0x00, 0xc5, 0x00, 0xfa, 0x00, 0x01, 0x88, 0x3c, 0x01, 0x37,
+0xac, 0xf8, 0x08, 0xb6, 0xee, 0x27, 0xf7};
+
+
+/*************************************************************************
+Function: Math_Seed()
+Purpose:  Solve the bootstrap security seed
+**************************************************************************/
+uint16_t Math_Seed(uint16_t input)
+{
+  uint16_t seed = (input+0x247c) | 5;
+  int i= seed & 0xF;
+  while(i--)
+   if(seed & 1)   seed=(seed>>1) | 0x8000;
+   else           seed>>=1;
+  return (seed | 0x247c);
+}
+
 /*************************************************************************
 Function: eep_init()
 Purpose:  initialize external EEPROM
@@ -3385,7 +3478,7 @@ void handle_usb_data(void)
                 bytes_to_read = to_uint16(length_hb, length_lb) + 1; // +1 CHECKSUM byte
 
                 // Calculate the exact size of the payload.
-                payload_length = bytes_to_read - 3; // in this case we have to be careful not to count data code byte, sub-data code byte and checksum byte
+                payload_length = (uint16_t)bytes_to_read - 3; // in this case we have to be careful not to count data code byte, sub-data code byte and checksum byte
 
                 // Maximum packet length is 1024 bytes; can't accept larger packets 
                 // and can't accept packet without datacode and subdatacode.
@@ -5335,126 +5428,82 @@ void handle_sci_data(void)
         }
         else if (pcm.speed == HIBAUD) // handle high-speed mode (62500 baud), no need to wait for message completion here, it is already handled when the message was sent
         {
-            if ((pcm.echo_received || pcm.response_received) && (pcm_rx_available() > 0))
+            if (pcm_rx_available() > 0) //DCY
             {
-                pcm.echo_received = false;
-                pcm.response_received = false;
-                pcm.message_length = pcm_rx_available();
-                uint16_t packet_length = TIMESTAMP_LENGTH + (2 * pcm.message_length) - 1;
-                uint8_t usb_msg[packet_length]; // create local array which will hold the timestamp and the SCI-bus (PCM) message
-                update_timestamp(current_timestamp); // get current time for the timestamp
+              if (seed_req == true || sent_raw == true) delay(200); //give it some time to generate the response
+              pcm.message_length = pcm_rx_available();
+              uint16_t packet_length = TIMESTAMP_LENGTH + (2 * pcm.message_length) + 1; // ?
+              uint8_t usb_msg[packet_length];
+              uint16_t seed = 0x0;
+              uint8_t seed_h[2];
+              uint8_t solved_seed_response[7];
+              solved_seed_response[0] = 0x24; //24 D0 27 C2 XX XX CS 
+              solved_seed_response[1] = 0xd0;
+              solved_seed_response[2] = 0x27;
+              solved_seed_response[3] = 0xc2;
+              
+              update_timestamp(current_timestamp); // get current time for the timestamp                     
+              
+              for (uint8_t i = 0; i < 4; i++) // put 4 timestamp bytes in the front
+              {
+                  usb_msg[i] = current_timestamp[i];
+              } 
 
-                // Request and response bytes are mixed together in a single message:
-                // 00 00 00 00 F4 0A 00 0B 00 0C 00 0D 00...
-                // 00 00 00 00: timestamp
-                // F4: RAM table
-                // 0A: RAM address
-                // 00: RAM value at 0A
-                // 0B: RAM address
-                // 00: RAM value at 0B
+              for (uint8_t i = 0; i < pcm.message_length; i++) // put every byte in the SCI-bus message after the timestamp
+              {
+                  usb_msg[TIMESTAMP_LENGTH + i] = pcm_getc() & 0xFF;
+              }
+              send_usb_packet(from_pcm, to_usb, msg_rx, sci_ls_bytes, usb_msg, packet_length); // boom
+              sent_raw = false;     
+              
+              if ((usb_msg[4] == 0x26 && usb_msg[5] == 0xD0 && usb_msg[6] == 0x67 && usb_msg[7] == 0xC1)) //seed request response
+              {
+                  send_usb_packet(from_pcm, to_usb, msg_rx, sci_hs_bytes, 0xAF, 1);
+                  seed = (usb_msg[8] << 8) + usb_msg[9];
+                  seed = Math_Seed(seed);
+                  seed_h[0] = seed >> 8;
+                  seed_h[1] = seed;
+                  send_usb_packet(from_pcm, to_usb, debug, sci_hs_bytes, seed_h, 2); // BOOM
+                  solved_seed_response[4] = seed_h[0];
+                  solved_seed_response[5] = seed_h[1];
+                  solved_seed_response[6] = calculate_checksum(solved_seed_response, 0, 6); //checksum bytes 0-5 and store the result in 6?
+                  // Fuckin SEND IT
+                  for (uint16_t i = 0; i < sizeof(solved_seed_response); i++)
+                  {
+                      pcm.msg_buffer[i] = solved_seed_response[i];
+                  }
 
-                for (uint8_t i = 0; i < TIMESTAMP_LENGTH; i++) // put 4 timestamp bytes in the front
+                  send_usb_packet(from_pcm, to_usb, msg_tx, sci_hs_bytes, solved_seed_response, sizeof(solved_seed_response));
+                  pcm.msg_buffer_ptr = sizeof(solved_seed_response);
+                  pcm.msg_to_transmit_count = 1;
+                  pcm.msg_tx_pending  = true; // set flag so the main loop knows there's something to do
+                  seed_req = false;
+                  
+              }
+              else if (BL_send_next == true) // send bootloader chunks
+              { 
+                // bootloader[521]
+                if (BL_idx < sizeof(bootloader)) 
                 {
-                    usb_msg[i] = current_timestamp[i];
+                  BL_send_next = true; 
+                  for (uint16_t i = 0; i < 16; i++) //only send 8 bytes at a time
+                  {
+                    pcm.msg_buffer[i] = bootloader[i + BL_idx];
+                  }
+                  delay(100);
+                  BL_idx += 16;
+                  pcm.msg_buffer_ptr = 16;
+                  pcm.msg_to_transmit_count = 1;
+                  pcm.msg_tx_pending  = true;
                 }
-
-                if (pcm.msg_to_transmit_count == 1)
+                else
                 {
-                    usb_msg[4] = pcm.msg_buffer[0]; // put RAM table byte first
-                    pcm_getc(); // get rid of the first byte in the receive buffer, it's the RAM table byte
-                    
-                    for (uint8_t i = 0; i < pcm.msg_buffer_ptr; i++) 
-                    {
-                        usb_msg[5 + (i * 2)] = pcm.msg_buffer[i + 1]; // put original request message byte next
-                        usb_msg[5 + (i * 2) + 1] = pcm_getc() & 0xFF; // put response byte after the request byte
-                    }
-                    
-                    send_usb_packet(from_pcm, to_usb, msg_rx, sci_hs_bytes, usb_msg, packet_length);
+                  BL_send_next = false;
+                  BL_idx = 0;
                 }
-                else if (pcm.msg_to_transmit_count > 1)
-                {
-                    usb_msg[4] = pcm.msg_buffer[pcm.msg_buffer_ptr + 1]; // put RAM table byte first
-                    pcm_getc(); // get rid of the first byte in the receive buffer, it's the RAM table byte
-                    
-                    for (uint8_t i = 0; i < pcm.repeated_msg_length; i++) 
-                    {
-                        usb_msg[5 + (i * 2)] = pcm.msg_buffer[pcm.msg_buffer_ptr + i + 2]; // put original request message byte next
-                        usb_msg[5 + (i * 2) + 1] = pcm_getc() & 0xFF; // put response byte after the request byte
-                    }
-                    
-                    send_usb_packet(from_pcm, to_usb, msg_rx, sci_hs_bytes, usb_msg, packet_length);
-                }
-
-                if (usb_msg[4] == 0xFE) // pay attention to special bytes (speed change)
-                {
-                    sbi(pcm.bus_settings, 5); // set change settings bit
-                    sbi(pcm.bus_settings, 4); // set enable bit
-                    cbi(pcm.bus_settings, 1); // set/clear speed bits (7812.5 baud)
-                    sbi(pcm.bus_settings, 0); // set/clear speed bits (7812.5 baud)
-                    configure_sci_bus(pcm.bus_settings);
-                }
-
-                if (pcm.repeat && !pcm.repeat_iterate)
-                {
-                    if (pcm.msg_to_transmit_count == 1) // if there's only one message in the buffer
-                    {
-                        pcm.repeat_next = true; // accept echo without verification...
-                    }
-                    else if (pcm.msg_to_transmit_count > 1) // multiple messages
-                    {
-                        pcm.repeat_next = true; // accept echo without verification...
-
-                        // Increase the current message counter and set the buffer pointer to the next message length
-                        pcm.msg_to_transmit_count_ptr++;
-                        pcm.msg_buffer_ptr += pcm.repeated_msg_length + 1;
-                        pcm.repeated_msg_length = pcm.msg_buffer[pcm.msg_buffer_ptr]; // re-calculate new message length
-
-                        // After the last message reset everything to zero to start at the beginning
-                        if (pcm.msg_to_transmit_count_ptr == pcm.msg_to_transmit_count)
-                        {
-                            pcm.msg_to_transmit_count_ptr = 0;
-                            pcm.msg_buffer_ptr = 0;
-                            pcm.repeated_msg_length = pcm.msg_buffer[pcm.msg_buffer_ptr]; // re-calculate new message length
-
-                            if (pcm.repeat_list_once) pcm.repeat_stop = true;
-                        }
-                    }
-
-                    if (pcm.repeat_stop) // one-shot message list is terminated here
-                    {
-                        pcm.msg_buffer_ptr = 0;
-                        pcm.repeat = false;
-                        pcm.repeat_next = false;
-                        pcm.repeat_iterate = false;
-                        pcm.repeat_list_once = false;
-                    }
-                }
-                else if (pcm.repeat && pcm.repeat_iterate)
-                {
-                    // TODO
-                    if (true) // check proper echo
-                    {
-                        pcm.repeat_next = true; // accept echo without verification...
-                    }
-                    else
-                    {
-                        pcm.msg_tx_pending = true; // send the same message again
-                    }
-                    
-                    if (pcm.repeat_stop)
-                    {
-                        pcm.msg_buffer_ptr = 0;
-                        pcm.repeated_msg_length = 0;
-                        pcm.repeat = false;
-                        pcm.repeat_next = false;
-                        pcm.repeat_iterate = false;
-                        pcm.repeat_list_once = false;
-                    }
-                }
-
-                handle_lcd(from_pcm, usb_msg, 4, TIMESTAMP_LENGTH + pcm.message_length); // pass message to LCD handling function, start at the 4th byte (skip timestamp)
-                pcm_rx_flush();
-                pcm.msg_rx_count++;
+              send_usb_packet(from_pcm, to_usb, debug, sci_hs_bytes, pcm.msg_buffer, 16);  //show that we sent some bytes
+              }
+                
             }
         }
         else // other non-standard speeds are handled here
@@ -5816,7 +5865,7 @@ void handle_sci_data(void)
                 
                 if (pcm.msg_to_transmit_count == 1) // if there's only one message in the buffer
                 {
-                    if (array_contains(sci_hi_speed_memarea, 16, pcm.msg_buffer[0])) // make sure that the memory table select byte is approved by the PCM before sending the full message
+                    if (array_contains(sci_hi_speed_memarea, 16, pcm.msg_buffer[0]) && BL_send_next == false) // make sure that the memory table select byte is approved by the PCM before sending the full message
                     {
                         if ((pcm.msg_buffer_ptr > 1) && (pcm.msg_buffer[1] == 0xFF)) // return full RAM-table if the first address is an invalid 0xFF
                         {
@@ -5872,9 +5921,20 @@ void handle_sci_data(void)
                     }
                     else
                     {
-                        // Messsage doesn't start with a RAM-table value, invalid
-                        send_usb_packet(from_usb, to_usb, ok_error, error_sci_hs_invalid_memory_ptr, pcm.msg_buffer, 1); // send error packet back to the laptop
-                        pcm_rx_flush();
+                      //DCY
+                      // Messsage doesn't start with a RAM-table value, just send it
+                      if (pcm.msg_buffer[0] == 0x24 && pcm.msg_buffer[1] == 0xD0 && pcm.msg_buffer[2] == 0x27 && pcm.msg_buffer[3] == 0xC1) seed_req = true; //seed request 
+                      if (pcm.msg_buffer[0] == 0xDE && pcm.msg_buffer[1] == 0xAD && pcm.msg_buffer[2] == 0xBE && pcm.msg_buffer[3] == 0xEF) BL_send_next = true; //send bootloader
+
+                          for (uint8_t i = 0; i < pcm.msg_buffer_ptr; i++) // repeat for the length of the message
+                          {
+                              pcm_putc(pcm.msg_buffer[i]); // put the next byte in the transmit buffer
+                              //don't wait for an echo
+                              //don't bother with the timeouts
+                              //just send the damn message
+                          }
+                          sent_raw = true;
+                          timeout_reached = false;
                     }
                 }
                 else if (pcm.msg_to_transmit_count > 1) // multiple messages, send one at a time
@@ -5924,13 +5984,24 @@ void handle_sci_data(void)
                         {
                             pcm.response_received = true;
                         }
-                    }
-                    else
-                    {
-                        // Messsage doesn't start with a RAM-table value, invalid
-                        send_usb_packet(from_usb, to_usb, ok_error, error_sci_hs_invalid_memory_ptr, pcm.msg_buffer, 1); // send error packet back to the laptop
-                    }
-                }
+                     }
+                     else
+                     {
+                        //DCY
+                        // Messsage doesn't start with a RAM-table value, just send it
+                        if (pcm.msg_buffer[0] == 0x24 && pcm.msg_buffer[1] == 0xD0 && pcm.msg_buffer[2] == 0x27 && pcm.msg_buffer[3] == 0xC1) seed_req = true; //seed request 
+                        
+                        for (uint8_t i = 0; i < pcm.msg_buffer_ptr; i++) // repeat for the length of the message
+                        {
+                            pcm_putc(pcm.msg_buffer[i]); // put the next byte in the transmit buffer
+                            //don't wait for an echo
+                            //don't bother with the timeouts
+                            //just send the damn message
+                        }
+                        sent_raw = true;
+                        timeout_reached = false;
+                     }
+                  } //end else if
             }
             else // non-standard speeds
             {
@@ -6950,7 +7021,7 @@ void setup()
     eep_init(); // initialize external EEPROM chip
     load_settings(); // load settings
     ccd_init(); // 7812.5 baud
-    pcm_init(LOBAUD); // 7812.5 baud
+    pcm_init(HIBAUD); // 7812.5 baud
     tcm_init(LOBAUD); // 7812.5 baud
     lcd_init(); // initialize external LCD
 
